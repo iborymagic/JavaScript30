@@ -30,6 +30,7 @@
       border-bottom: 0;
     }
 
+    /* 체크된 체크박스의 설명에 관통하는 선을 긋는 법. */
     input:checked + p {
       background: #F9F9F9;
       text-decoration: line-through;
@@ -96,6 +97,47 @@
   </div>
 
 <script>
+  const checkboxes = document.querySelectorAll('.inbox input[type="checkbox"]');
+  
+  // 두 체크 박스 사이의 모든 체크박스들을 체크하려면
+  // 첫 번째 클릭을 하고, 쉬프트 버튼을 누른 채로 두 번째 클릭을 할 때
+  // 첫 번째에 클릭했던 체크박스가 어떤 것인지를 기억하고 있어야 한다.
+  // let을 사용하는 이유는, 클릭할 때마다 계속해서 바뀔 수 있기 때문.
+  let lastChecked;
+
+  function handleCheck(e) {
+    // Check if they had the shift key down
+    // AND check that they are checking it, not unchecking it.
+    // click 이벤트는 check할 때뿐만 아니라, uncheck할 때도 발생한다는 것을 명심할 것.
+
+    let inBetween = false;
+    if(e.shiftKey && this.checked) {
+      // 모든 체크박스들을 loop 돌면서, 첫 번째 클릭된 체크박스를 찾아낸다.
+      // 걔와 그 이후에 있는 애들을 전부 체크하고, 두 번째 클릭된 체크박스에서 멈춘다.
+      // 두 체크박스가 DOM의 어디에 위치하는지를 찾고, 그 사이에 있는 애들을 다 기억한 채로 부모에서 자식을 바꾸고 하는 건 너무 복잡하고 비효율적이다.
+      // 그리고 누군가 와서 HTML을 살짝만 바꿔도, 전부 작동하지 않게 되어버린다.
+
+      // loop over every single checkbox
+      checkboxes.forEach(checkbox => {
+        console.log(checkbox);
+        if(checkbox === this || checkbox === lastChecked) {
+          inBetween = !inBetween;
+          console.log('inBetween');
+        }
+
+        if(inBetween) {
+          checkbox.checked = true;
+        }
+      });
+    }
+    lastChecked = this;
+  }
+
+  // click 이벤트는 키보드를 사용하는 경우에도 발생한다.
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('click', handleCheck);
+  });
+
 </script>
 </body>
 </html>

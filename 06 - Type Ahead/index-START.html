@@ -17,6 +17,51 @@
 <script>
 const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
 
+const cities = [];
+
+fetch(endpoint)
+  .then(res => res.json())
+  .then(data => cities.push(...data)); 
+
+const searchInput = document.querySelector('.search');
+const suggestions = document.querySelector('.suggestions');
+
+function findMatches(wordToMatch, cities) {
+  return cities.filter(place => {
+    const regex = new RegExp(wordToMatch, 'gi');
+    return place.city.match(regex) || place.state.match(regex);
+  });
+}
+
+// stackoverflow에서 구해온, 숫자에 ','를 찍어주는 변환 함수.
+// toLocaleString()을 써줘도 동일한 효과.
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function displayMatches() {
+  // 검색창의 값이 바뀔 때마다 호출될 함수.
+  const matchArray = findMatches(this.value, cities);
+  const html = matchArray.map(place => {
+    const regex = new RegExp(this.value, 'gi');
+    const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
+    const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`);
+
+    return `
+      <li>
+        <span class="name">${cityName}, ${stateName}</span>
+        <span class="population">${Number(place.population).toLocaleString()}</span>
+      </li>
+    `;
+  }).join('');
+
+  suggestions.innerHTML = html;
+}
+
+searchInput.addEventListener('change', displayMatches);
+// 키보드를 누를 때마다 실시간으로 값이 변하게 하기 위해 keyup이벤트도 추가해준다.
+searchInput.addEventListener('keyup', displayMatches);
+
 </script>
 </body>
 </html>

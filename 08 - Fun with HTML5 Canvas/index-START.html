@@ -7,6 +7,85 @@
 <body>
 <canvas id="draw" width="800" height="800"></canvas>
 <script>
+
+// HTML Canvas element 위에다가 바로 무언가를 그릴 순 없다. 
+// Canvas 위에 'Context'를 만들어서, 거기다가 그림을 그림. context는 2D일 수도, 3D일 수도 있다.
+const canvas = document.getElementById('draw');
+const ctx = canvas.getContext('2d');
+
+// 브라우저의 크기만큼 가로, 세로를 설정
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// 색 지정
+ctx.strokeStyle = '#BADA55';
+
+// 선이 다른 선과 만나는 부분을 둥글게 할건지, 각지게 할건지
+ctx.lineJoin = 'round';
+
+// 선이 끝나는 부분을 둥글게 할건지, 각지게 할건지
+ctx.lineCap = 'round'; 
+
+ctx.lineWidth = 100;
+ctx.globalCompositeOperation = 'multiply';
+
+// 마우스를 누르고 있는지 아닌지를 나타내는 flag
+let isDrawing = false;
+
+// 선은 항상 시작점과 끝점이 필요하다. 걔네들을 나타낼 변수.
+let lastX = 0;
+let lastY = 0;
+let hue = 0;
+let direction = true;
+
+function draw(e) {
+  if(!isDrawing) return; // 마우스가 클릭된 상태가 아닐 때는 함수를 실행시키지 않음.
+  console.log(e);
+
+  // HSL = Hue, Saturation, Lightness
+  ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+
+  ctx.beginPath();
+  // start from
+  ctx.moveTo(lastX, lastY);
+  // go to
+  ctx.lineTo(e.offsetX, e.offsetY);
+  // 화면에 표시해라!
+  ctx.stroke();
+
+  // lastX = e.offsetX;
+  // lastY = e.offsetY;
+  [lastX, lastY] = [e.offsetX, e.offsetY];
+
+  hue++;
+  // 참고로 hue의 범위는 0 ~ 360까지. 360을 넘어가는 순간 다시 0으로 자동으로 처리된다.
+  if(hue >= 360) {
+    hue = 0;
+  }
+
+  if(ctx.lineWidth >= 100 || ctx.lineWidth <= 1) {
+    direction = !direction;
+  }
+
+  if(direction) {
+    ctx.lineWidth++;
+  } else {
+    ctx.lineWidth--;
+  }
+
+}
+
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mousedown', (e) => {
+  isDrawing = true;
+  // mousemove보다 mousedown이 먼저 일어남.
+  // 그래서 mousemove를 하기 전에 mousedown 단계에서, 현재 마우스의 위치로 X, Y좌표를 옮겨주는 것.
+  // 그러면 이제 (0, 0)에서 시작하지 않고, 원하는 곳에서 시작할 수 있다.
+  [lastX, lastY] = [e.offsetX, e.offsetY];
+});
+canvas.addEventListener('mouseup', () => isDrawing = false);
+canvas.addEventListener('mouseout', () => isDrawing = false); // 마우스가 화면을 벗어나면 중단
+
 </script>
 
 <style>
