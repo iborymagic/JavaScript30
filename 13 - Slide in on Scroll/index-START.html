@@ -46,17 +46,60 @@
     function debounce(func, wait = 20, immediate = true) {
       var timeout;
       return function() {
-        var context = this, args = arguments;
+        var context = this; 
+        var args = arguments;
         var later = function() {
           timeout = null;
           if (!immediate) func.apply(context, args);
         };
+
         var callNow = immediate && !timeout;
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
         if (callNow) func.apply(context, args);
       };
     }
+
+    const sliderImages = document.querySelectorAll('.slide-in');
+
+    function checkSlide(e) {
+      // window.scrollY는 현재 viewport의 최상단이 어느 정도 내려와있는지를 나타냄.
+      // 현재 viewport의 최하단이 어느 정도 높이에 위치해 있는지를 알기 위해서는
+      // window.scrollY + window.innerHeight를 해주면 됨
+      sliderImages.forEach(sliderImage => {
+        // half way through the image
+        const slideInAt = window.scrollY + window.innerHeight - sliderImage.height / 2;
+        // 이미지의 절반쯤 지났을 때 이미지가 slide-in 되도록 할 것이므로
+        // 최하단에서 이미지의 절반 높이만큼 빼주면, 거기서부터 이미지가 slide-in 하면 된다.
+        console.log(slideInAt);
+
+
+        // 이미지가 viewport에서 사라졌을 때, 이미지가 다시 사라지도록 하려면
+        // (다시 위로 스크롤할 때도 동일한 이펙트가 나오도록 하기 위해)
+        // 이미지의 최하단이 어딘지도 알아야한다.
+        // bottom of the image
+        const imageBottom = sliderImage.offsetTop + sliderImage.height;
+        // offsetTop은 해당 이미지의 상단부가 전체 페이지의 최상단에서 어느 정도 내려와있는지를 나타냄.
+        // 거기다가 height를 더해주면, 해당 이미지의 하단부가 전체 페이지의 최상단에서 어느 정도 내려와있는지를 나타내게 됨.
+        
+        const isHalfShown = slideInAt > sliderImage.offsetTop; // 이미지가 절반 이상 보여졌는지
+        const isNotScrolledPast = window.scrollY < imageBottom; // 이미지가 아직 덜 사라졌는지.
+        if(isHalfShown && isNotScrolledPast) {
+          // 변수명이 길더라도, if문에 들어갔을 때 한 눈에 알아보기 쉬움.
+
+          // 이미지가 절반 이상 보여졌고, 아직 화면에서 사라지지 않은 상태라면
+          // = 아직 viewport 내부에 이미지가 존재한다면.
+          sliderImage.classList.add('active');
+        } else {
+          sliderImage.classList.remove('active');
+        }
+      });
+    }
+
+      // 스크롤을 할 때마다 이벤트 리스너를 호출하면 너무 많이 호출하게 됨
+      // 성능 문제가 생길 수 있다.
+      // -> debounce함수를 사용함으로써 해결
+    window.addEventListener('scroll', debounce(checkSlide, 10));
 
   </script>
 
