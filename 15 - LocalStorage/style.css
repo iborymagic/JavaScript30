@@ -60,7 +60,7 @@ h2 {
 .plates input {
   display: none;
 }
-
+/* 체크박스에 이모지 집어넣는 방법. */
 .plates input + label:before {
   content: "⬜️";
   margin-right: 10px;
