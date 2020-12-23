@@ -54,7 +54,24 @@
   </div>
 
 <script>
+  const nav = document.querySelector('#main');
+  const topOfNav = nav.offsetTop;
 
+  function fixNav() {
+    if (window.scrollY >= topOfNav) {
+      document.body.style.paddingTop = nav.offsetHeight + 'px';
+      // paddingTop을 CSS로 주지 않은 이유는, offsetHeight가 얼마가 될지 모르기 때문.
+      // 나중에 변경될 수도 있다. 그럴 때를 대비해 하드 코딩이 아닌 '프로그래밍적'으로 코딩을 해주는 것.
+      document.body.classList.add('fixed-nav');
+    } else {
+      document.body.style.paddingTop = 0;
+      document.body.classList.remove('fixed-nav');
+    }
+    // fixed가 되면, 더 이상 document에서 그 요소는 특정 공간을 차지하지 않는다.
+    // 그래서 그 요소가 차지하던 공간이 사라지면서, 그만큼 다른 요소들이 위로 올라가게 되는 것.
+  }
+
+  window.addEventListener('scroll', fixNav);
 </script>
 
 </body>
